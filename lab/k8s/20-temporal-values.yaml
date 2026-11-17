@@ -1,0 +1,78 @@
+# Helm values for the Temporal chart (charts/temporal-1.8.0.tgz, server 1.32.2).
+# Only the settings that differ from the chart's defaults are listed here.
+server:
+  config:
+    logLevel: "info"
+    persistence:
+      # Fixed for the life of the database: it cannot be changed after the
+      # first install. 16 shards across 3 History pods means each pod owns
+      # about 5, which keeps ownership changes easy to follow.
+      numHistoryShards: 16
+      datastores:
+        default:
+          sql:
+            pluginName: mysql8
+            databaseName: temporal
+            connectAddr: "lab-db:3306"
+            connectProtocol: "tcp"
+            user: root
+            existingSecret: lab-db
+            secretKey: password
+            maxConns: 10
+            maxIdleConns: 10
+            maxConnLifetime: "1h"
+        visibility:
+          sql:
+            pluginName: mysql8
+            databaseName: temporal_visibility
+            connectAddr: "lab-db:3306"
+            connectProtocol: "tcp"
+            user: root
+            existingSecret: lab-db
+            secretKey: password
+            maxConns: 5
+            maxIdleConns: 5
+            maxConnLifetime: "1h"
+    namespaces:
+      # Creates the Temporal namespace "default" after install.
+      create: true
+      namespace:
+        - name: default
+          retention: 3d
+
+  frontend:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+  # Three History pods so that losing one leaves two to take over its shards.
+  history:
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+
+  matching:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+  # Temporal's own internal worker service, not the workers that run the
+  # example workflow (those are in 40-app.yaml).
+  worker:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+web:
+  enabled: true
+
+admintools:
+  enabled: true

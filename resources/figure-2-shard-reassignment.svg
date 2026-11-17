@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="572" viewBox="0 0 860 572" role="img" aria-labelledby="fig2-title fig2-desc" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <title id="fig2-title">Where pod #2's shards went when it was deleted</title>
+  <desc id="fig2-desc">Pod #2 owned history shards 1, 3, 4, 5, 6, 9, 10 and 12. After it was deleted, pod #1 acquired shards 1, 5, 6, 9, 10 and 12, and pod #3 acquired shards 3 and 4. Shards that pods #1 and #3 already owned, and shards the replacement pod acquired later, are not shown.</desc>
+
+  <defs>
+    <marker id="fig2-arrow" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto">
+      <path d="M0,0.5 L9,4 L0,7.5 Z" fill="#898781"/>
+    </marker>
+  </defs>
+
+  <!-- Surface -->
+  <rect width="860" height="572" fill="#fcfcfb"/>
+
+  <!-- Title -->
+  <text x="32" y="42" font-size="18" font-weight="600" fill="#0b0b0b">Where pod #2's shards went when it was deleted</text>
+  <text x="32" y="64" font-size="13" fill="#52514e">Each of its eight shards was acquired by one of the two surviving History pods.</text>
+
+  <!-- Legend: color shows the owning pod -->
+  <g font-size="12.5" fill="#52514e">
+    <text x="32" y="93">Color shows the owning pod:</text>
+    <rect x="216" y="82" width="12" height="12" rx="3" fill="#2a78d6"/>
+    <text x="234" y="93">Pod #1</text>
+    <rect x="296" y="82" width="12" height="12" rx="3" fill="#eb6834"/>
+    <text x="314" y="93">Pod #2 (deleted)</text>
+    <rect x="436" y="82" width="12" height="12" rx="3" fill="#1baf7a"/>
+    <text x="454" y="93">Pod #3</text>
+  </g>
+
+  <!-- Column captions -->
+  <g font-size="11" font-weight="600" fill="#898781" text-anchor="middle" letter-spacing="0.6">
+    <text x="148" y="128">AFTER DELETION</text>
+    <text x="430" y="128">BEFORE DELETION</text>
+    <text x="712" y="128">AFTER DELETION</text>
+  </g>
+
+  <!-- Pod #1: survivor -->
+  <rect x="32" y="138" width="232" height="384" rx="10" fill="#ffffff" stroke="#e1e0d9"/>
+  <circle cx="57" cy="161" r="5" fill="#2a78d6"/>
+  <text x="70" y="166" font-size="16" font-weight="600" fill="#0b0b0b">Pod #1</text>
+  <text x="52" y="185" font-size="12.5" fill="#52514e">Survived · acquired 6 shards</text>
+  <line x1="48" y1="198" x2="248" y2="198" stroke="#e1e0d9"/>
+
+  <!-- Pod #2: deleted -->
+  <rect x="314" y="138" width="232" height="384" rx="10" fill="#fcfcfb" stroke="#c3c2b7" stroke-dasharray="5 4"/>
+  <circle cx="339" cy="161" r="5" fill="#eb6834"/>
+  <text x="352" y="166" font-size="16" font-weight="600" fill="#0b0b0b">Pod #2</text>
+  <text x="334" y="185" font-size="12.5" fill="#52514e">Owned 8 shards · then deleted</text>
+  <line x1="330" y1="198" x2="530" y2="198" stroke="#e1e0d9"/>
+
+  <!-- Pod #3: survivor -->
+  <rect x="596" y="138" width="232" height="384" rx="10" fill="#ffffff" stroke="#e1e0d9"/>
+  <circle cx="621" cy="161" r="5" fill="#1baf7a"/>
+  <text x="634" y="166" font-size="16" font-weight="600" fill="#0b0b0b">Pod #3</text>
+  <text x="616" y="185" font-size="12.5" fill="#52514e">Survived · acquired 2 shards</text>
+  <line x1="612" y1="198" x2="812" y2="198" stroke="#e1e0d9"/>
+
+  <!-- One row per shard that pod #2 owned. Each shard moves straight to its new owner. -->
+  <g font-size="13.5" font-weight="600" fill="#0b0b0b" text-anchor="middle" stroke-width="1.5">
+
+    <g>
+      <title>Shard 1: pod #2 to pod #1</title>
+      <rect x="364" y="212" width="132" height="28" rx="6" fill="#f9e1d7" stroke="#eb6834"/>
+      <text x="430" y="226" dy="0.35em">Shard 1</text>
+      <line x1="358" y1="226" x2="220" y2="226" stroke="#898781" marker-end="url(#fig2-arrow)"/>
+      <rect x="82" y="212" width="132" height="28" rx="6" fill="#d6e4f4" stroke="#2a78d6"/>
+      <text x="148" y="226" dy="0.35em">Shard 1</text>
+    </g>
+
+    <g>
+      <title>Shard 3: pod #2 to pod #3</title>
+      <rect x="364" y="250" width="132" height="28" rx="6" fill="#f9e1d7" stroke="#eb6834"/>
+      <text x="430" y="264" dy="0.35em">Shard 3</text>
+      <line x1="502" y1="264" x2="640" y2="264" stroke="#898781" marker-end="url(#fig2-arrow)"/>
+      <rect x="646" y="250" width="132" height="28" rx="6" fill="#d3eee4" stroke="#1baf7a"/>
+      <text x="712" y="264" dy="0.35em">Shard 3</text>
+    </g>
+
+    <g>
+      <title>Shard 4: pod #2 to pod #3</title>
+      <rect x="364" y="288" width="132" height="28" rx="6" fill="#f9e1d7" stroke="#eb6834"/>
+      <text x="430" y="302" dy="0.35em">Shard 4</text>
+      <line x1="502" y1="302" x2="640" y2="302" stroke="#898781" marker-end="url(#fig2-arrow)"/>
+      <rect x="646" y="288" width="132" height="28" rx="6" fill="#d3eee4" stroke="#1baf7a"/>
+      <text x="712" y="302" dy="0.35em">Shard 4</text>
+    </g>
+
+    <g>
+      <title>Shard 5: pod #2 to pod #1</title>
+      <rect x="364" y="326" width="132" height="28" rx="6" fill="#f9e1d7" stroke="#eb6834"/>
+      <text x="430" y="340" dy="0.35em">Shard 5</text>
+      <line x1="358" y1="340" x2="220" y2="340" stroke="#898781" marker-end="url(#fig2-arrow)"/>
+      <rect x="82" y="326" width="132" height="28" rx="6" fill="#d6e4f4" stroke="#2a78d6"/>
+      <text x="148" y="340" dy="0.35em">Shard 5</text>
+    </g>
+
+    <g>
+      <title>Shard 6: pod #2 to pod #1</title>
+      <rect x="364" y="364" width="132" height="28" rx="6" fill="#f9e1d7" stroke="#eb6834"/>
+      <text x="430" y="378" dy="0.35em">Shard 6</text>
+      <line x1="358" y1="378" x2="220" y2="378" stroke="#898781" marker-end="url(#fig2-arrow)"/>
+      <rect x="82" y="364" width="132" height="28" rx="6" fill="#d6e4f4" stroke="#2a78d6"/>
+      <text x="148" y="378" dy="0.35em">Shard 6</text>
+    </g>
+
+    <g>
+      <title>Shard 9: pod #2 to pod #1</title>
+      <rect x="364" y="402" width="132" height="28" rx="6" fill="#f9e1d7" stroke="#eb6834"/>
+      <text x="430" y="416" dy="0.35em">Shard 9</text>
+      <line x1="358" y1="416" x2="220" y2="416" stroke="#898781" marker-end="url(#fig2-arrow)"/>
+      <rect x="82" y="402" width="132" height="28" rx="6" fill="#d6e4f4" stroke="#2a78d6"/>
+      <text x="148" y="416" dy="0.35em">Shard 9</text>
+    </g>
+
+    <g>
+      <title>Shard 10: pod #2 to pod #1</title>
+      <rect x="364" y="440" width="132" height="28" rx="6" fill="#f9e1d7" stroke="#eb6834"/>
+      <text x="430" y="454" dy="0.35em">Shard 10</text>
+      <line x1="358" y1="454" x2="220" y2="454" stroke="#898781" marker-end="url(#fig2-arrow)"/>
+      <rect x="82" y="440" width="132" height="28" rx="6" fill="#d6e4f4" stroke="#2a78d6"/>
+      <text x="148" y="454" dy="0.35em">Shard 10</text>
+    </g>
+
+    <g>
+      <title>Shard 12: pod #2 to pod #1</title>
+      <rect x="364" y="478" width="132" height="28" rx="6" fill="#f9e1d7" stroke="#eb6834"/>
+      <text x="430" y="492" dy="0.35em">Shard 12</text>
+      <line x1="358" y1="492" x2="220" y2="492" stroke="#898781" marker-end="url(#fig2-arrow)"/>
+      <rect x="82" y="478" width="132" height="28" rx="6" fill="#d6e4f4" stroke="#2a78d6"/>
+      <text x="148" y="492" dy="0.35em">Shard 12</text>
+    </g>
+  </g>
+
+  <!-- Scope note -->
+  <text x="32" y="550" font-size="12.5" fill="#52514e">Not shown: shards that pods #1 and #3 already owned, and the shards the replacement pod acquired after it joined.</text>
+</svg>

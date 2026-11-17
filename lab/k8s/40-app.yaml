@@ -1,0 +1,97 @@
+# The example workers and the load generator. Both run from the image built by
+# build.cmd. Kubernetes caches images by tag, so build a new tag for every code
+# change (v1, v2, ...) and roll it out with:
+#   kubectl -n temporal-lab set image deploy/change-worker worker=changelab:v2
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: change-worker
+  namespace: temporal-lab
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: change-worker
+  template:
+    metadata:
+      labels:
+        app: change-worker
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/job: change-worker
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: worker
+          image: changelab:v1
+          imagePullPolicy: IfNotPresent
+          command: ["/app/worker"]
+          env:
+            - name: TEMPORAL_ADDRESS
+              value: temporal-frontend:7233
+            # How long the worker waits for in-flight tasks when it receives
+            # SIGTERM. Compare it with terminationGracePeriodSeconds above.
+            - name: WORKER_STOP_TIMEOUT
+              value: 10s
+          ports:
+            - name: metrics
+              containerPort: 9090
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+---
+# Starts workflows at a steady rate and sends their approvals. It prints one
+# CSV line per call to stdout. Deployed with zero replicas; start it with:
+#   kubectl -n temporal-lab scale deploy/loadgen --replicas=1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgen
+  namespace: temporal-lab
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: loadgen
+  template:
+    metadata:
+      labels:
+        app: loadgen
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: loadgen
+          image: changelab:v1
+          imagePullPolicy: IfNotPresent
+          command: ["/app/loadgen"]
+          env:
+            - name: TEMPORAL_ADDRESS
+              value: temporal-frontend:7233
+            # Workflows started per second.
+            - name: RATE
+              value: "2"
+            # Approvals each workflow needs before it releases.
+            - name: APPROVALS
+              value: "2"
+            # Each approval is sent after a random wait in this range.
+            - name: MIN_DELAY
+              value: 5s
+            - name: MAX_DELAY
+              value: 30s
+            # A workflow gives up if its approvals have not arrived by then.
+            - name: APPROVAL_TIMEOUT
+              value: 3m
+            # Share of workflows that get no approvals and run into the timeout.
+            - name: SILENT_PERCENT
+              value: "10"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi

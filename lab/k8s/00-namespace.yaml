@@ -1,0 +1,6 @@
+# Everything in the lab lives in this one namespace, so deleting the namespace
+# removes the whole setup.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: temporal-lab

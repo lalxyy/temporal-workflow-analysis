@@ -1,0 +1,123 @@
+# A single MySQL instance that Temporal uses for both of its stores
+# (workflow state and visibility). One instance is enough for the lab; database
+# failover is out of scope.
+#
+# The objects are named "lab-db", not "mysql", on purpose. Kubernetes gives
+# every pod in the namespace environment variables for each Service, so a
+# Service called "mysql" injects MYSQL_PORT=tcp://<ip>:3306. Temporal's schema
+# tool reads MYSQL_PORT as a plain port number and crashes on that value.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: lab-db
+  namespace: temporal-lab
+type: Opaque
+stringData:
+  # Test-only credential for this local lab. Do not reuse it anywhere else.
+  password: lab-only-7c41e9d2b6
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lab-db
+  namespace: temporal-lab
+data:
+  lab.cnf: |
+    [mysqld]
+    # Saves a few hundred MB of memory; the lab does not use it.
+    performance_schema = OFF
+    max_connections = 300
+    skip_name_resolve = ON
+  shards.sh: |
+    #!/bin/sh
+    # Prints the range ID of every history shard. The range ID goes up each
+    # time a History pod acquires the shard. It also goes up when the current
+    # owner re-acquires the shard after a storage error or uses up its block
+    # of task IDs, so a higher number does not always mean a new owner.
+    # Usage: kubectl -n temporal-lab exec lab-db-0 -- /lab/shards.sh
+    exec mysql -uroot -p"$MYSQL_ROOT_PASSWORD" --table temporal \
+      -e "SELECT shard_id, range_id FROM shards ORDER BY shard_id" 2>/dev/null
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab-db
+  namespace: temporal-lab
+spec:
+  selector:
+    app: lab-db
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: mysql
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: lab-db
+  namespace: temporal-lab
+spec:
+  serviceName: lab-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lab-db
+  template:
+    metadata:
+      labels:
+        app: lab-db
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.4
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: lab-db
+                  key: password
+          ports:
+            - name: mysql
+              containerPort: 3306
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - mysqladmin ping -h 127.0.0.1 -uroot -p"$MYSQL_ROOT_PASSWORD" 2>/dev/null
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+            - name: lab
+              mountPath: /etc/mysql/conf.d/lab.cnf
+              subPath: lab.cnf
+            - name: lab-scripts
+              mountPath: /lab
+      volumes:
+        - name: lab
+          configMap:
+            name: lab-db
+            items:
+              - key: lab.cnf
+                path: lab.cnf
+        - name: lab-scripts
+          configMap:
+            name: lab-db
+            defaultMode: 0555
+            items:
+              - key: shards.sh
+                path: shards.sh
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
